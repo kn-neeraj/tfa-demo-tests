@@ -1,0 +1,35 @@
+# =============================
+# BrowserStack credentials
+# Set via env vars: BROWSERSTACK_USERNAME, BROWSERSTACK_ACCESS_KEY
+# =============================
+
+# =============================
+# Reporting
+# =============================
+projectName: TFA Demo
+buildName: tfa-demo-tests
+buildIdentifier: '#${BUILD_NUMBER}'
+
+framework: pytest
+
+# =============================
+# Platforms — Chrome only for stable demo signal
+# =============================
+platforms:
+  - os: Windows
+    osVersion: 11
+    browserName: Chrome
+    browserVersion: latest
+
+parallelsPerPlatform: 1
+
+# =============================
+# Debugging — verbose for TFA log richness
+# =============================
+debug: true                  # screenshots on every Selenium command
+networkLogs: true            # HAR logs for network activity
+consoleLogs: verbose         # full browser console output
+seleniumLogs: true           # Selenium command logs
+
+browserstackLocal: false
+testObservability: true
