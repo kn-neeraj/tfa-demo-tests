@@ -80,8 +80,8 @@ class TestDemoCulprits:
         driver.find_element(By.ID, "add-to-cart-2").click()
         time.sleep(1)
 
-        # Go to cart, then checkout
-        driver.find_element(By.ID, "shopping-cart-btn").click()
+        # Navigate to cart by URL so a renamed nav button can't mask this test.
+        driver.get(DEMO_APP + "/cart")
         time.sleep(1)
         driver.find_element(By.ID, "checkout-btn").click()
         time.sleep(1)
