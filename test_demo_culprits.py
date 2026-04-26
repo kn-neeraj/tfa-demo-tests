@@ -86,14 +86,23 @@ class TestDemoCulprits:
         # Click the cart link via href, not id — survives PR3's id rename
         # and uses SPA navigation so the in-memory cart isn't dropped.
         driver.find_element(By.CSS_SELECTOR, "a[href='/tfa-demo-app/cart']").click()
-        time.sleep(1)
+        time.sleep(2)
+
+        # Guard: cart must actually have items, else we'd be comparing 0 == 0.
+        cart_items = driver.find_elements(By.ID, "cart-item")
+        assert len(cart_items) >= 2, (
+            f"Cart unexpectedly empty before checkout: found {len(cart_items)} items"
+        )
 
         driver.find_element(By.ID, "checkout-btn").click()
-        time.sleep(1)
+        time.sleep(2)
 
         # Read each displayed line total + the displayed grand total
         lines = driver.find_elements(By.CSS_SELECTOR, "li > span:nth-child(2)")
         line_totals = [float(t.text.replace("$", "")) for t in lines]
+        assert len(line_totals) >= 2, (
+            f"Checkout page missing line items: only {len(line_totals)} spans found"
+        )
         expected_total = round(sum(line_totals), 2)
 
         total_el = wait.until(
