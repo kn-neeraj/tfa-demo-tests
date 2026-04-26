@@ -32,14 +32,14 @@ class TestDemoCulprits:
         cart = driver.find_element(By.ID, "shopping-cart-btn")
         assert cart.is_displayed(), "Cart launcher should be visible on landing"
 
-    def test_login_unlocks_premium_product(self, driver):
+    def test_navbar_shows_user_after_login(self, driver):
         """
-        After logging in via option[2], the premium product card 9
-        must be findable. add-to-cart-9 only renders for authenticated users.
+        After logging in as 'Demo One' (option[2]), the Navbar profile
+        button must show the user's name. Anonymous state shows only an
+        icon; authenticated state shows the name next to the avatar.
 
-        Catches PR4 — the login refactor writes the user profile straight
-        to localStorage and never updates React state, so all auth-gated
-        UI keeps rendering as anonymous.
+        Catches PR4 — the auth payload dropped the 'name' field, so the
+        Navbar's `{user.name || user.email}` falls back to email.
         """
         driver.get(DEMO_APP)
 
@@ -51,8 +51,11 @@ class TestDemoCulprits:
         driver.find_element(By.ID, "login-submit").click()
         time.sleep(2)
 
-        wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "#add-to-cart-9"))
+        # Profile button text should now contain the user's full name.
+        profile = wait.until(EC.presence_of_element_located((By.ID, "profile-btn")))
+        text = profile.text.strip()
+        assert "Demo One" in text, (
+            f"Expected 'Demo One' in profile-btn after login, got: {text!r}"
         )
 
     def test_cart_total_matches_items(self, driver):
@@ -80,9 +83,11 @@ class TestDemoCulprits:
         driver.find_element(By.ID, "add-to-cart-2").click()
         time.sleep(1)
 
-        # Navigate to cart by URL so a renamed nav button can't mask this test.
-        driver.get(DEMO_APP + "/cart")
+        # Click the cart link via href, not id — survives PR3's id rename
+        # and uses SPA navigation so the in-memory cart isn't dropped.
+        driver.find_element(By.CSS_SELECTOR, "a[href='/tfa-demo-app/cart']").click()
         time.sleep(1)
+
         driver.find_element(By.ID, "checkout-btn").click()
         time.sleep(1)
 
